@@ -56,6 +56,28 @@ jobs:
         with:
           name: proxy-exec-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/pxx${{ matrix.ext }}
+  build-macos-universal:
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: proxy-exec-x86_64-apple-darwin
+          path: x86_64
+      - uses: actions/download-artifact@v3
+        with:
+          name: proxy-exec-aarch64-apple-darwin
+          path: aarch64
+
+      - name: Build
+        run: lipo -create -output pxx x86_64/pxx aarch64/pxx
+
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: proxy-exec-universal-apple-darwin
+          path: pxx
+
   lint:
     strategy:
       matrix:
