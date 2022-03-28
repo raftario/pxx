@@ -27,11 +27,11 @@ fn shell() -> &'static str {
 /// pxx is also useful for simply executing commands in parallel. It broadcast standard input to
 /// all executed commands and can buffer standard output and error if desired.
 ///
-/// Example: `pxx -p "[::]:8080->localhost:3000" -p "unix:./pg.sock->localhost:5432" "npm start" "docker compose up"`
+/// Example: `pxx -p "[::]:8080<>localhost:3000" -p "unix:./pg.sock<>localhost:5432" "npm start" "docker compose up"`
 pub struct Args {
     /// Proxy directives
     ///
-    /// Directives are specified `<SOURCE>-><DESTINATION>`,
+    /// Directives are specified `<SOURCE><><DESTINATION>`,
     /// where connections to `<SOURCE>` will be proxied to `<DESTINATION>`.
     /// Both sides are specified as `[<TYPE>:]<ADDRESS>`,
     /// where type can be `tcp`, `unix` or `pipe`.
@@ -39,9 +39,9 @@ pub struct Args {
     /// `<ADDRESS>` should be specified as `<HOST>:<PORT>` for `tcp`,
     /// as a valid file path for `unix` and as a valid pipe name for `pipe`.
     ///
-    /// Example: `[::]:80->localhost:8080`
-    /// {n}Example: `tcp:localhost:5432->unix:/var/run/postgresql/.s.PGSQL.5432`
-    /// {n}Example: `tcp:localhost:2375->pipe:\\.\pipe\docker_engine`
+    /// Example: `[::]:80<>localhost:8080`
+    /// {n}Example: `tcp:localhost:5432<>unix:/var/run/postgresql/.s.PGSQL.5432`
+    /// {n}Example: `tcp:localhost:2375<>pipe:\\.\pipe\docker_engine`
     #[clap(short, long = "proxy")]
     pub proxies: Vec<ProxyDirective>,
 
@@ -97,8 +97,8 @@ impl FromStr for ProxyDirective {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (source, destination) = s
-            .split_once("->")
-            .ok_or("Proxy directives must be of the form `<SOURCE>-><DESTINATION>`")?;
+            .split_once("<>")
+            .ok_or("Proxy directives must be of the form `<SOURCE><><DESTINATION>`")?;
 
         let source = source.parse()?;
         let destination = destination.parse()?;

@@ -12,9 +12,7 @@ mod command;
 mod proxy;
 
 fn main() -> io::Result<()> {
-    let mut code = 0;
-
-    {
+    let code = {
         let Args {
             commands,
             raw_commands,
@@ -28,7 +26,7 @@ fn main() -> io::Result<()> {
             .enable_all()
             .build()?;
 
-        rt.block_on(async move {
+        let code = rt.block_on(async move {
             for proxy in proxies {
                 tokio::spawn(proxy::proxy(proxy.source, proxy.destination));
             }
@@ -60,6 +58,7 @@ fn main() -> io::Result<()> {
             }
             tokio::spawn(command::broadcast(stdins));
 
+            let mut code = 0;
             select! {
                 biased;
 
@@ -73,7 +72,8 @@ fn main() -> io::Result<()> {
 
         // required because of stdin broadcasting which cannot be cancelled
         rt.shutdown_background();
-    }
+        code
+    };
 
     process::exit(code);
 }
@@ -81,7 +81,7 @@ fn main() -> io::Result<()> {
 async fn wait(
     tasks: &mut Vec<JoinHandle<io::Result<ExitStatus>>>,
     code: &mut i32,
-) -> io::Result<()> {
+) -> io::Result<i32> {
     while let Some(task) = tasks.last_mut() {
         let exit = task.await??;
         if !exit.success() && *code == 0 {
@@ -89,5 +89,5 @@ async fn wait(
         }
         tasks.pop();
     }
-    Ok(())
+    Ok(*code)
 }
