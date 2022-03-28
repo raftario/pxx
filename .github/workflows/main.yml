@@ -4,16 +4,27 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        target: 
+          - x86_64-unknown-linux-musl
+          - x86_64-pc-windows-msvc
+          - x86_64-apple-darwin
+          - aarch64-unknown-linux-musl
+          - aarch64-apple-darwin
         include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
             bin: target/release/pxx
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
             bin: target/release/pxx.exe
-          - os: macOS-latest
-            target: x86_64-apple-darwin
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            bin: target/release/pxx
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            bin: target/release/pxx
+          - target: aarch64-apple-darwin
+            os: macos-latest
             bin: target/release/pxx
     runs-on: ${{ matrix.os }}
 
