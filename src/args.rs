@@ -7,8 +7,8 @@ use clap::{AppSettings::DeriveDisplayOrder, Parser};
 #[cfg(unix)]
 fn shell() -> &'static str {
     use once_cell::sync::Lazy;
-    static SHELL: Lazy<String> = Lazy::new(|| std::env::var("SHELL").unwrap());
-    SHELL.as_str()
+    static SHELL: Lazy<String> = Lazy::new(|| std::env::var("SHELL"));
+    SHELL.as_ref().map(String::as_str).unwrap_or("/bin/sh")
 }
 #[cfg(windows)]
 fn shell() -> &'static str {
