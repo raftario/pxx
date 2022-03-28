@@ -1,6 +1,6 @@
 use std::{
     fmt::{self, Display},
-    io, mem,
+    io,
     net::SocketAddr,
     pin::Pin,
     task::{Context, Poll},
@@ -93,7 +93,7 @@ impl Listener {
         Ok(match endpoint {
             Endpoint::Tcp(address) => Self::Tcp(TcpListener::bind(address).await?),
             #[cfg(unix)]
-            Endpoint::Unix(path) => todo!(),
+            Endpoint::Unix(path) => Self::Unix(tokio::net::UnixListener::bind(path).await?),
             #[cfg(windows)]
             Endpoint::Pipe(path) => Self::Pipe {
                 server: tokio::net::windows::named_pipe::ServerOptions::new()
@@ -112,7 +112,7 @@ impl Listener {
             #[cfg(windows)]
             Self::Pipe { server, name: path } => {
                 server.connect().await?;
-                let stream = mem::replace(
+                let stream = std::mem::replace(
                     server,
                     tokio::net::windows::named_pipe::ServerOptions::new().create(path)?,
                 );
