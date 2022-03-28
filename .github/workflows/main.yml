@@ -13,16 +13,14 @@ jobs:
         include:
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
-            bin: target/x86_64-unknown-linux-musl/release/pxx
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            bin: target/release/pxx.exe
+            ext: .exe
           - target: x86_64-apple-darwin
             os: macos-latest
-            bin: target/release/pxx
           - target: aarch64-unknown-linux-musl
             os: ubuntu-latest
-            bin: target/aarch64-unknown-linux-musl/release/pxx
+            rustflags: -C linker=aarch64-linux-gnu-gcc
           - target: aarch64-apple-darwin
             os: macos-latest
             bin: target/aarch64-apple-darwin/release/pxx
@@ -47,12 +45,14 @@ jobs:
         with:
           command: build
           args: --release --target ${{ matrix.target }}
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
 
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
           name: proxy-exec-${{ matrix.target }}
-          path: ${{ matrix.bin }}
+          path: target/${{ matrix.target }}/release/pxx${{ matrix.ext }}
   lint:
     strategy:
       matrix:
