@@ -15,19 +15,18 @@ jobs:
           - os: macOS-latest
             target: x86_64-apple-darwin
             bin: target/release/pxx
-
     runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v2
 
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: ${{ matrix.target }}
           profile: minimal
           override: true
       - uses: Swatinem/rust-cache@v1
-        with:
-          sharedKey: stable
 
       - name: Build
         uses: actions-rs/cargo@v1
@@ -41,7 +40,10 @@ jobs:
           name: proxy-exec-${{ matrix.target }}
           path: ${{ matrix.bin }}
   lint:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
 
@@ -52,8 +54,6 @@ jobs:
           components: clippy, rustfmt
           override: true
       - uses: Swatinem/rust-cache@v1
-        with:
-          sharedKey: stable
 
       - name: rustfmt
         uses: actions-rs/cargo@v1
