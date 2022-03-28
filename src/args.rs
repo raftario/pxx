@@ -30,7 +30,7 @@ const SHELL_ARG: &str = "-Command";
 /// pxx is also useful for simply executing commands in parallel. It broadcast standard input to
 /// all executed commands and can buffer standard output and error if desired.
 ///
-/// Example: `pxx -p "[::]:8080->localhost:3000" -p "unix:./pg.sock->localhost:5432" "npm start" "docker compose up"`
+/// Example: `pxx -p "[::]:8080->localhost:3000" -p "unix://./pg.sock->localhost:5432" "npm start" "docker compose up"`
 #[derive(Parser, Debug)]
 #[clap(
     author,
@@ -45,15 +45,15 @@ pub struct Args {
     ///
     /// Directives are specified `<SOURCE>-><DESTINATION>`,
     /// where connections to `<SOURCE>` will be proxied to `<DESTINATION>`.
-    /// Both sides are specified as `[<TYPE>:]<ADDRESS>`,
+    /// Both sides are specified as `[<SCHEME>://]<ADDRESS>`,
     /// where type can be `tcp`, `unix` or `pipe`.
-    /// If `<TYPE>` is omitted, `tcp` is assumed.
+    /// If `<SCHEME>` is omitted, `tcp` is assumed.
     /// `<ADDRESS>` should be specified as `<HOST>:<PORT>` for `tcp`,
     /// as a valid file path for `unix` and as a valid pipe name for `pipe`.
     ///
     /// Example: `[::]:80->localhost:8080`
-    /// {n}Example: `tcp:localhost:5432->unix:/var/run/postgresql/.s.PGSQL.5432`
-    /// {n}Example: `tcp:localhost:2375->pipe:\\.\pipe\docker_engine`
+    /// {n}Example: `tcp://localhost:5432->unix:///var/run/postgresql/.s.PGSQL.5432`
+    /// {n}Example: `tcp://localhost:2375->pipe://\\.\pipe\docker_engine`
     #[clap(short = 'p', long = "proxy", name = "PROXY")]
     pub proxies: Vec<ProxyDirective>,
 
@@ -128,8 +128,8 @@ impl FromStr for ProxyDirective {
             .split_once("->")
             .ok_or("Proxy directives must be of the form `<SOURCE>-><DESTINATION>`")?;
 
-        let source = source.parse()?;
-        let destination = destination.parse()?;
+        let source = source.trim().parse()?;
+        let destination = destination.trim().parse()?;
 
         Ok(Self {
             source,
@@ -152,7 +152,7 @@ impl FromStr for ProxyEndpoint {
             ))
         };
 
-        match s.split_once(':') {
+        match s.split_once("://") {
             Some(("tcp", endpoint)) => tcp(endpoint),
             #[cfg(unix)]
             Some(("unix", path)) => Ok(Self::Unix(std::path::PathBuf::from(path))),
@@ -162,7 +162,8 @@ impl FromStr for ProxyEndpoint {
             Some(("pipe", path)) => Ok(Self::Pipe(std::ffi::OsString::from(path))),
             #[cfg(unix)]
             Some(("pipe", _)) => Err("Named pipes are not supported on Unix".into()),
-            _ => tcp(s),
+            Some((scheme, _)) => Err(format!("Unrecognised scheme `{scheme}`").into()),
+            None => tcp(s),
         }
     }
 }
