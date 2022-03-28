@@ -93,7 +93,7 @@ impl Listener {
         Ok(match endpoint {
             Endpoint::Tcp(address) => Self::Tcp(TcpListener::bind(address).await?),
             #[cfg(unix)]
-            Endpoint::Unix(path) => Self::Unix(tokio::net::UnixListener::bind(path).await?),
+            Endpoint::Unix(path) => Self::Unix(tokio::net::UnixListener::bind(path)?),
             #[cfg(windows)]
             Endpoint::Pipe(path) => Self::Pipe {
                 server: tokio::net::windows::named_pipe::ServerOptions::new()
