@@ -45,7 +45,7 @@ fn print(args: &Args) {
         _ => args.shell.clone(),
     };
     for command in &args.commands {
-        eprintln!("Spawning `{shell} {command}`",);
+        eprintln!("Spawning `{shell} \"{command}\"`",);
     }
     for raw_command in &args.raw_commands {
         eprintln!("Spawning `{raw_command}`");
