@@ -16,7 +16,12 @@ fn shell() -> &'static str {
 }
 
 #[derive(Parser, Debug)]
-#[clap(author, version, setting(DeriveDisplayOrder))]
+#[clap(
+    author,
+    version,
+    arg_required_else_help = true,
+    setting(DeriveDisplayOrder)
+)]
 /// Proxy connections while executing commands
 ///
 /// pxx lets you proxy TCP, Unix, and named pipe connections while executing commands in parallel.
@@ -27,11 +32,13 @@ fn shell() -> &'static str {
 /// pxx is also useful for simply executing commands in parallel. It broadcast standard input to
 /// all executed commands and can buffer standard output and error if desired.
 ///
-/// Example: `pxx -p "[::]:8080<>localhost:3000" -p "unix:./pg.sock<>localhost:5432" "npm start" "docker compose up"`
+/// Example: `pxx -p "[::]:8080->localhost:3000" -p "unix:./pg.sock->localhost:5432" "npm start" "docker compose up"`
 pub struct Args {
     /// Proxy directives
     ///
-    /// Directives are specified `<SOURCE><><DESTINATION>`,
+    /// Can be specified multiple times
+    ///
+    /// Directives are specified `<SOURCE>-><DESTINATION>`,
     /// where connections to `<SOURCE>` will be proxied to `<DESTINATION>`.
     /// Both sides are specified as `[<TYPE>:]<ADDRESS>`,
     /// where type can be `tcp`, `unix` or `pipe`.
@@ -39,10 +46,10 @@ pub struct Args {
     /// `<ADDRESS>` should be specified as `<HOST>:<PORT>` for `tcp`,
     /// as a valid file path for `unix` and as a valid pipe name for `pipe`.
     ///
-    /// Example: `[::]:80<>localhost:8080`
-    /// {n}Example: `tcp:localhost:5432<>unix:/var/run/postgresql/.s.PGSQL.5432`
-    /// {n}Example: `tcp:localhost:2375<>pipe:\\.\pipe\docker_engine`
-    #[clap(short, long = "proxy")]
+    /// Example: `[::]:80->localhost:8080`
+    /// {n}Example: `tcp:localhost:5432->unix:/var/run/postgresql/.s.PGSQL.5432`
+    /// {n}Example: `tcp:localhost:2375->pipe:\\.\pipe\docker_engine`
+    #[clap(short = 'p', long = "proxy", name = "PROXY")]
     pub proxies: Vec<ProxyDirective>,
 
     /// Shell to use
@@ -55,9 +62,16 @@ pub struct Args {
 
     /// Arguments passed to the shell
     ///
+    /// Can be specified multiple times
+    ///
     /// These arguments will be passed to the shell before the commands themselves.
     /// They do not affect raw commands.
-    #[clap(short = 'a', long = "shell-arg", allow_hyphen_values = true)]
+    #[clap(
+        short = 'a',
+        long = "shell-arg",
+        name = "ARG",
+        allow_hyphen_values = true
+    )]
     #[cfg_attr(unix, clap(default_value = "-c"))]
     pub shell_args: Vec<String>,
 
@@ -71,15 +85,24 @@ pub struct Args {
 
     /// Commands to run without wrapping in a shell
     ///
+    /// Can be specified multiple times
+    ///
     /// These commands will be run directly by splitting at whitespace.
     /// The first word will be interpreted as the program and the rest as arguments.
-    #[clap(short = 'r', long = "raw")]
+    #[clap(short = 'r', long = "raw", name = "COMMAND")]
     pub raw_commands: Vec<String>,
 
     /// Commands to run
     ///
     /// These commands will be run in a shell.
     pub commands: Vec<String>,
+
+    /// Print verbose information at startup
+    ///
+    /// This will print the proxies with hostnames resolved
+    /// and commands including their shell if they are not raw.
+    #[clap(short, long)]
+    pub verbose: bool,
 }
 
 pub fn parse() -> Args {
@@ -97,8 +120,8 @@ impl FromStr for ProxyDirective {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (source, destination) = s
-            .split_once("<>")
-            .ok_or("Proxy directives must be of the form `<SOURCE><><DESTINATION>`")?;
+            .split_once("->")
+            .ok_or("Proxy directives must be of the form `<SOURCE>-><DESTINATION>`")?;
 
         let source = source.parse()?;
         let destination = destination.parse()?;

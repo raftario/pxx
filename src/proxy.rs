@@ -22,7 +22,6 @@ pub enum Endpoint {
 }
 
 pub async fn proxy(source: Endpoint, destination: Endpoint) -> io::Result<()> {
-    println!("Connections to `{source}` will be proxied to `{destination}`");
     let mut listener = Listener::bind(source).await?;
 
     loop {
