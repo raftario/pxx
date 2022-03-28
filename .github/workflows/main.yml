@@ -13,7 +13,7 @@ jobs:
         include:
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
-            bin: target/release/pxx
+            bin: target/x86_64-unknown-linux-musl/release/pxx
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             bin: target/release/pxx.exe
@@ -22,10 +22,11 @@ jobs:
             bin: target/release/pxx
           - target: aarch64-unknown-linux-musl
             os: ubuntu-latest
-            bin: target/release/pxx
+            bin: target/aarch64-unknown-linux-musl/release/pxx
           - target: aarch64-apple-darwin
             os: macos-latest
-            bin: target/release/pxx
+            bin: target/aarch64-apple-darwin/release/pxx
+      fail-fast: false
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -56,7 +57,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
+      fail-fast: false
     runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v2
 
