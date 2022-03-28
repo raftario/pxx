@@ -16,9 +16,9 @@ fn shell() -> &'static str {
 }
 
 #[cfg(unix)]
-const SHELL_ARG: &str = "-c"
+const SHELL_ARG: &str = "-c";
 #[cfg(windows)]
-const SHELL_ARG: &str = "-Command"
+const SHELL_ARG: &str = "-Command";
 
 /// Proxy connections while executing commands
 ///
