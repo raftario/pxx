@@ -21,6 +21,7 @@ jobs:
           - target: aarch64-unknown-linux-musl
             os: ubuntu-latest
             rustflags: -C linker=aarch64-linux-gnu-gcc
+            packages: gcc-aarch64-linux-gnu
           - target: aarch64-apple-darwin
             os: macos-latest
             bin: target/aarch64-apple-darwin/release/pxx
@@ -29,6 +30,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - run: apt-get install -y ${{ matrix.packages }}
+        if: matrix.packages
 
       - uses: actions-rs/toolchain@v1
         with:
