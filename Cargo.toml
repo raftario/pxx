@@ -1,0 +1,29 @@
+[package]
+name = "proxy-exec"
+version = "0.1.0"
+edition = "2021"
+authors = ["Raphaël Thériault <self@raftar.io>"]
+description = "Proxy connections while executing commands"
+license = "MIT"
+
+[[bin]]
+name = "pxx"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1", features = [
+    "rt",
+    "net",
+    "process",
+    "signal",
+    "sync",
+    "time",
+    "macros",
+    "io-std",
+    "io-util",
+] }
+clap = { version = "3.1", features = ["derive", "cargo", "wrap_help"] }
+pin-project = "1"
+
+[target."cfg(unix)".dependencies]
+once_cell = "1"
