@@ -12,16 +12,14 @@ fn shell() -> &'static str {
 }
 #[cfg(windows)]
 fn shell() -> &'static str {
-    "powershell.exe"
+    "PowerShell.exe"
 }
 
-#[derive(Parser, Debug)]
-#[clap(
-    author,
-    version,
-    arg_required_else_help = true,
-    setting(DeriveDisplayOrder)
-)]
+#[cfg(unix)]
+const SHELL_ARG: &str = "-c"
+#[cfg(windows)]
+const SHELL_ARG: &str = "-Command"
+
 /// Proxy connections while executing commands
 ///
 /// pxx lets you proxy TCP, Unix, and named pipe connections while executing commands in parallel.
@@ -33,6 +31,13 @@ fn shell() -> &'static str {
 /// all executed commands and can buffer standard output and error if desired.
 ///
 /// Example: `pxx -p "[::]:8080->localhost:3000" -p "unix:./pg.sock->localhost:5432" "npm start" "docker compose up"`
+#[derive(Parser, Debug)]
+#[clap(
+    author,
+    version,
+    arg_required_else_help = true,
+    setting(DeriveDisplayOrder)
+)]
 pub struct Args {
     /// Proxy directives
     ///
@@ -70,9 +75,9 @@ pub struct Args {
         short = 'a',
         long = "shell-arg",
         name = "ARG",
+        default_value = SHELL_ARG,
         allow_hyphen_values = true
     )]
-    #[cfg_attr(unix, clap(default_value = "-c"))]
     pub shell_args: Vec<String>,
 
     /// Buffer output at newlines
