@@ -14,7 +14,7 @@ mod proxy;
 fn main() -> io::Result<()> {
     process::exit({
         let args = args::parse();
-        if !args.verbose {
+        if args.verbose {
             print(&args);
         }
 
