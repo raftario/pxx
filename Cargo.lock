@@ -200,16 +200,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e280fbe77cc62c91527259e9442153f4688736748d24660126286329742b4c6c"
 
 [[package]]
-name = "ppx"
-version = "0.1.0"
-dependencies = [
- "clap",
- "once_cell",
- "pin-project",
- "tokio",
-]
-
-[[package]]
 name = "proc-macro-error"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -240,6 +230,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c7342d5883fbccae1cc37a2353b09c87c9b0f3afd73f5fb9bba687a1f733b029"
 dependencies = [
  "unicode-xid",
+]
+
+[[package]]
+name = "pxx"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "once_cell",
+ "pin-project",
+ "tokio",
 ]
 
 [[package]]

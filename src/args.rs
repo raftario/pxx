@@ -30,7 +30,7 @@ const SHELL_ARG: &str = "-Command";
 /// pxx is also useful for simply executing commands in parallel. It broadcast standard input to
 /// all executed commands and can buffer standard output and error if desired.
 ///
-/// For more information, examples, and the source code, see https://github.com/raftario/ppx
+/// For more information, examples, and the source code, see https://github.com/raftario/pxx
 #[derive(Parser, Debug)]
 #[clap(
     author,

@@ -1,4 +1,4 @@
-# ppx
+# pxx
 
 Proxy TCP, Unix and named pipe connections while executing commands in parallel
 
