@@ -30,7 +30,7 @@ const SHELL_ARG: &str = "-Command";
 /// pxx is also useful for simply executing commands in parallel. It broadcast standard input to
 /// all executed commands and can buffer standard output and error if desired.
 ///
-/// Example: `pxx -p "[::]:8080->localhost:3000" -p "unix://./pg.sock->localhost:5432" "npm start" "docker compose up"`
+/// For more information, examples, and the source code, see https://github.com/raftario/ppx
 #[derive(Parser, Debug)]
 #[clap(
     author,
@@ -53,7 +53,7 @@ pub struct Args {
     ///
     /// Example: `[::]:80->localhost:8080`
     /// {n}Example: `tcp://localhost:5432->unix:///var/run/postgresql/.s.PGSQL.5432`
-    /// {n}Example: `tcp://localhost:2375->pipe://\\.\pipe\docker_engine`
+    /// {n}Example: `tcp://192.168.0.1:2375->pipe://\\.\pipe\docker_engine`
     #[clap(short = 'p', long = "proxy", name = "PROXY")]
     pub proxies: Vec<ProxyDirective>,
 

@@ -25,16 +25,17 @@ pub async fn proxy(source: Endpoint, destination: Endpoint) -> io::Result<()> {
     let mut listener = Listener::bind(source).await?;
 
     loop {
-        let mut source = listener.accept().await?;
+        let source = listener.accept().await?;
         let destination = destination.clone();
 
-        tokio::spawn(async move {
-            let mut destination = Stream::connect(destination).await.unwrap();
-            tokio::io::copy_bidirectional(&mut source, &mut destination)
-                .await
-                .unwrap()
-        });
+        tokio::spawn(handle(source, destination));
     }
+}
+
+async fn handle(mut source: Stream, destination: Endpoint) -> io::Result<()> {
+    let mut destination = Stream::connect(destination).await?;
+    tokio::io::copy_bidirectional(&mut source, &mut destination).await?;
+    Ok(())
 }
 
 #[pin_project(project = StreamProjection)]

@@ -19,7 +19,7 @@ pub fn shell(
     cmd: impl AsRef<OsStr>,
 ) -> Command {
     let mut command = Command::new(shell);
-    command.args(args).arg(cmd).stdin(Stdio::piped());
+    command.args(args).arg(cmd);
     command
 }
 
@@ -28,7 +28,7 @@ pub fn raw(cmd: impl AsRef<str>) -> Command {
     let cmd = iter.next().unwrap();
 
     let mut command = Command::new(cmd);
-    command.args(iter).stdin(Stdio::null());
+    command.args(iter);
 
     command
 }
@@ -42,7 +42,10 @@ pub fn spawn(
     } else {
         Stdio::inherit
     };
-    command.stdout(out_err()).stderr(out_err());
+    command
+        .stdin(Stdio::piped())
+        .stdout(out_err())
+        .stderr(out_err());
 
     let mut child = command.spawn()?;
     let stdin = child.stdin.take().unwrap();

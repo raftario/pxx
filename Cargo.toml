@@ -1,5 +1,5 @@
 [package]
-name = "proxy-exec"
+name = "ppx"
 version = "0.1.0"
 edition = "2021"
 authors = ["Raphaël Thériault <self@raftar.io>"]
